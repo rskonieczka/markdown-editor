@@ -55,10 +55,18 @@ export function useMarkdownEditor({ onUpdate, initialContent }) {
   return editor;
 }
 
-export default function Editor({ editor }) {
+export default function Editor({ editor, zoom = 100 }) {
+  const scale = zoom / 100;
   return (
     <div className="flex-1 overflow-y-auto bg-white">
-      <div className="max-w-[1200px] mx-auto min-h-full">
+      <div
+        className="max-w-[1200px] mx-auto min-h-full"
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: "top center",
+          width: `${100 / scale}%`,
+        }}
+      >
         {editor ? (
           <EditorContent editor={editor} />
         ) : (

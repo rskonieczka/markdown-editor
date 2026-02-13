@@ -232,6 +232,8 @@ export default function Toolbar({
   onExportHtml,
   isDirty,
   currentFileName,
+  zoom,
+  onZoomChange,
 }) {
   if (!editor) return null;
 
@@ -379,6 +381,19 @@ export default function Toolbar({
       </ToolbarButton>
 
       <div className="flex-1" />
+
+      <select
+        value={zoom}
+        onChange={(e) => onZoomChange(Number(e.target.value))}
+        title="Powieksz"
+        className="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded px-1 py-0.5 cursor-pointer hover:bg-gray-100 focus:outline-none"
+      >
+        {[50, 75, 100, 125, 150, 175, 200].map((v) => (
+          <option key={v} value={v}>{v}%</option>
+        ))}
+      </select>
+
+      <ToolbarSeparator />
       <span className="text-gray-400 text-xs truncate max-w-[250px]">
         {currentFileName || "Nowy dokument"}
         {isDirty ? " *" : ""}

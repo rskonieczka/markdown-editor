@@ -165,6 +165,10 @@ function AppContent({ initialCliData }) {
     initialCliData ? initialCliData.path : "",
   );
   const [statusMessage, setStatusMessage] = useState(null);
+  const [zoom, setZoom] = useState(() => {
+    const saved = localStorage.getItem("md-editor-zoom");
+    return saved ? Number(saved) : 100;
+  });
   const savedContentRef = useRef(initialCliData ? initialCliData.content : "");
   const fileHandleRef = useRef(null);
   const dirtyTimerRef = useRef(null);
@@ -525,8 +529,10 @@ ${editor.getHTML()}
         onExportHtml={handleExportHtml}
         isDirty={isDirty}
         currentFileName={currentFileName}
+        zoom={zoom}
+        onZoomChange={(v) => { setZoom(v); localStorage.setItem("md-editor-zoom", v); }}
       />
-      <Editor editor={editor} />
+      <Editor editor={editor} zoom={zoom} />
       {statusMessage && (
         <div
           className={`fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-opacity z-50 ${
