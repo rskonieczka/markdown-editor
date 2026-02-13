@@ -2,6 +2,8 @@
 
 Natywny, lekki edytor WYSIWYG Markdown zbudowany na Tauri 2 (Rust + React).
 
+![Markdown Editor](markdowneditor-view.png)
+
 ## Funkcje
 
 - **WYSIWYG** - edycja jak w dokumencie, bez potrzeby znajomosci skladni Markdown
