@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Markdown Editor
+Comment=A modern Markdown editor
+Exec=markdown-editor %f
+Icon=markdown-editor
+Terminal=false
+Type=Application
+Categories=Office;TextEditor;
+MimeType=text/markdown;text/x-markdown;text/plain;

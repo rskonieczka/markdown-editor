@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nichealpham/tauri-capability-schema/main/capabilities.schema.json",
+  "identifier": "default",
+  "description": "Default capabilities for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "fs:default",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:read-all",
+    "fs:write-all",
+    "fs:scope-home",
+    "fs:scope-home-recursive",
+    "fs:scope-temp",
+    "fs:scope-temp-recursive",
+    "fs:scope-download",
+    "fs:scope-download-recursive",
+    "fs:scope-desktop",
+    "fs:scope-desktop-recursive",
+    "fs:scope-document",
+    "fs:scope-document-recursive",
+    "core:event:default",
+    "core:window:allow-set-title"
+  ]
+}
