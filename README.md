@@ -4,6 +4,15 @@ Natywny, lekki edytor WYSIWYG Markdown zbudowany na Tauri 2 (Rust + React).
 
 ![Markdown Editor](markdowneditor-view.png)
 
+## Pobieranie
+
+| System | Plik | Link |
+|--------|------|------|
+| Windows (installer) | `.exe` | [Pobierz](https://github.com/rskonieczka/markdown-editor/releases/latest/download/Markdown.Editor_1.0.0_x64-setup.exe) |
+| Windows (MSI) | `.msi` | [Pobierz](https://github.com/rskonieczka/markdown-editor/releases/latest/download/Markdown.Editor_1.0.0_x64_en-US.msi) |
+| Linux (Debian/Ubuntu) | `.deb` | [Pobierz](https://github.com/rskonieczka/markdown-editor/releases/latest/download/Markdown.Editor_1.0.0_amd64.deb) |
+| Linux (uniwersalny) | `.AppImage` | [Pobierz](https://github.com/rskonieczka/markdown-editor/releases/latest/download/Markdown.Editor_1.0.0_amd64.AppImage) |
+
 ## Funkcje
 
 - **WYSIWYG** - edycja jak w dokumencie, bez potrzeby znajomosci skladni Markdown
