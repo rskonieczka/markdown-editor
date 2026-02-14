@@ -4,12 +4,14 @@ import Editor, { useMarkdownEditor } from "./components/Editor";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 import MarkdownIt from "markdown-it";
+import markdownItTaskLists from "markdown-it-task-lists";
 
 const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
 });
+md.use(markdownItTaskLists, { enabled: true });
 
 const turndownService = new TurndownService({
   headingStyle: "atx",
@@ -17,6 +19,23 @@ const turndownService = new TurndownService({
   bulletListMarker: "-",
 });
 turndownService.use(gfm);
+
+turndownService.addRule("taskListItem", {
+  filter: (node) =>
+    node.nodeName === "LI" && node.getAttribute("data-type") === "taskItem",
+  replacement: (content, node) => {
+    const checked = node.getAttribute("data-checked") === "true";
+    const checkbox = checked ? "[x]" : "[ ]";
+    const text = content.replace(/^\s*/, "").replace(/\n/g, "\n    ");
+    return `- ${checkbox} ${text}\n`;
+  },
+});
+
+turndownService.addRule("taskList", {
+  filter: (node) =>
+    node.nodeName === "UL" && node.getAttribute("data-type") === "taskList",
+  replacement: (content) => `\n${content}\n`,
+});
 
 function htmlToMarkdown(html) {
   return turndownService.turndown(html || "");
@@ -37,11 +56,11 @@ const tauriReady = (async function initTauri() {
   }
   try {
     const { open, save } = await import("@tauri-apps/plugin-dialog");
-    const { readTextFile, writeTextFile } = await import(
+    const { readTextFile, writeTextFile, watchImmediate } = await import(
       "@tauri-apps/plugin-fs"
     );
     tauriDialog = { open, save };
-    tauriFs = { readTextFile, writeTextFile };
+    tauriFs = { readTextFile, writeTextFile, watchImmediate };
     isTauriAvailable = true;
   } catch {
     isTauriAvailable = false;
@@ -504,6 +523,61 @@ ${editor.getHTML()}
       }).catch(() => {});
     }
   }, [currentFileName, isDirty]);
+
+  // --- File watcher (auto-reload on external changes) ---
+
+  const isReloadingRef = useRef(false);
+
+  useEffect(() => {
+    if (!isTauriAvailable || !tauriFs?.watchImmediate || !currentFilePath) return;
+
+    let unwatchFn = null;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        console.log("[FileWatch] Starting watch on:", currentFilePath);
+        unwatchFn = await tauriFs.watchImmediate(
+          currentFilePath,
+          async (event) => {
+            console.log("[FileWatch] Event:", JSON.stringify(event));
+            if (cancelled || isReloadingRef.current) return;
+            const evType = event.type;
+            const isModify = (typeof evType === "object" && "modify" in evType)
+              || evType === "modify"
+              || (typeof evType === "object" && "access" in evType)
+              || (Array.isArray(event.paths) && event.paths.length > 0);
+            if (!isModify) return;
+            console.log("[FileWatch] Detected change, reloading...");
+            try {
+              isReloadingRef.current = true;
+              const content = await tauriFs.readTextFile(currentFilePath);
+              if (cancelled) return;
+              if (content === savedContentRef.current) return;
+              savedContentRef.current = content;
+              const html = markdownToHtml(content);
+              const ed = editor;
+              if (ed && !ed.isDestroyed) {
+                const { from, to } = ed.state.selection;
+                ed.commands.setContent(html);
+                try { ed.commands.setTextSelection({ from, to }); } catch {}
+              }
+              setIsDirty(false);
+            } finally {
+              isReloadingRef.current = false;
+            }
+          },
+        );
+      } catch (err) {
+        console.warn("File watch failed:", err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (unwatchFn) unwatchFn();
+    };
+  }, [currentFilePath, editor]);
 
   // --- Warn on close with unsaved changes ---
 

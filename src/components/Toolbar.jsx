@@ -28,6 +28,7 @@ import {
   TableProperties,
   Plus,
   Trash2,
+  CheckSquare,
 } from "lucide-react";
 
 function ToolbarButton({ onClick, isActive, disabled, title, children }) {
@@ -330,6 +331,13 @@ export default function Toolbar({
         title="Cytat"
       >
         <Quote size={18} />
+      </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().toggleTaskList().run()}
+        isActive={editor.isActive("taskList")}
+        title="Checklist"
+      >
+        <CheckSquare size={18} />
       </ToolbarButton>
 
       <ToolbarSeparator />

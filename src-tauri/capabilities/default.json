@@ -24,6 +24,8 @@
     "fs:scope-document",
     "fs:scope-document-recursive",
     "core:event:default",
-    "core:window:allow-set-title"
+    "core:window:allow-set-title",
+    "fs:allow-watch",
+    "fs:allow-unwatch"
   ]
 }

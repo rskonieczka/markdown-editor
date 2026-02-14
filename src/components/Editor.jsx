@@ -7,6 +7,8 @@ import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import Placeholder from "@tiptap/extension-placeholder";
+import TaskList from "@tiptap/extension-task-list";
+import TaskItem from "@tiptap/extension-task-item";
 
 export function useMarkdownEditor({ onUpdate, initialContent }) {
   const editor = useEditor({
@@ -37,6 +39,10 @@ export function useMarkdownEditor({ onUpdate, initialContent }) {
       TableHeader,
       Placeholder.configure({
         placeholder: "Zacznij pisac...",
+      }),
+      TaskList,
+      TaskItem.configure({
+        nested: true,
       }),
     ],
     content: initialContent || "",
