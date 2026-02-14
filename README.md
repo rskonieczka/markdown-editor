@@ -2,6 +2,8 @@
 
 A native, lightweight WYSIWYG Markdown editor built with Tauri 2 (Rust + React).
 
+> **Latest update** - fixed existing bugs and added new ones.
+
 ![Markdown Editor](markdowneditor-view.png)
 
 ## Table of Contents

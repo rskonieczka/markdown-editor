@@ -42,7 +42,20 @@ function htmlToMarkdown(html) {
 }
 
 function markdownToHtml(markdown) {
-  return md.render(markdown || "");
+  let html = md.render(markdown || "");
+
+  html = html
+    .replace(/<ul class="contains-task-list">/g, '<ul data-type="taskList">')
+    .replace(
+      /<li class="task-list-item[^"]*">\s*(<p>)?\s*<input[^>]*checked[^>]*>\s*/g,
+      (_, p) => `<li data-type="taskItem" data-checked="true">${p || ""}`,
+    )
+    .replace(
+      /<li class="task-list-item[^"]*">\s*(<p>)?\s*<input[^>]*type="checkbox"[^>]*>\s*/g,
+      (_, p) => `<li data-type="taskItem" data-checked="false">${p || ""}`,
+    );
+
+  return html;
 }
 
 let isTauriAvailable = false;
@@ -161,8 +174,8 @@ export default function App() {
 
   if (!cliChecked) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="animate-pulse text-gray-400">Ladowanie...</div>
+      <div className="flex justify-center items-center h-screen bg-gray-50">
+        <div className="text-gray-400 animate-pulse">Ladowanie...</div>
       </div>
     );
   }

@@ -2,7 +2,7 @@
 name = "markdown-editor"
 version = "1.0.0"
 description = "WYSIWYG Markdown Editor"
-authors = [""]
+authors = ["Markdown Editor Team"]
 edition = "2021"
 
 [lib]
