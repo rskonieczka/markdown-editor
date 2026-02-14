@@ -16,11 +16,17 @@ Natywny, lekki edytor WYSIWYG Markdown zbudowany na Tauri 2 (Rust + React).
 ## Funkcje
 
 - **WYSIWYG** - edycja jak w dokumencie, bez potrzeby znajomosci skladni Markdown
-- **Toolbar** - naglowki H1-H6, Bold, Italic, Strike, Code, listy, cytat, link, tabela, linia pozioma, undo/redo
+- **Toolbar** - naglowki H1-H6, Bold, Italic, Strike, Code, listy, cytat, checklist, link, tabela, linia pozioma, undo/redo
+- **Checklist** - interaktywna lista zadan `- [ ]` / `- [x]` z pelna konwersja MD
 - **Zarzadzanie plikami** - Nowy, Otworz, Zapisz, Zapisz jako (.md), Eksport HTML
+- **File watcher** - automatyczne odswiezanie przy zmianach z zewnatrz (natywny inotify/ReadDirectoryChanges)
+- **Drag & Drop** - przeciagnij plik .md/.markdown/.txt do edytora
+- **CLI** - otwarcie pliku z linii polecen: `markdown-editor plik.md`
+- **Zoom** - skalowanie widoku 50-200% (zapamietywane w localStorage)
 - **Skroty klawiszowe** - Ctrl+N/O/S/Shift+S/B/I/K/Z
-- **Dirty flag** - ostrzezenie przy niezapisanych zmianach
-- **Cross-platform** - Windows (.exe) i Linux (AppImage)
+- **Dirty flag** - ostrzezenie przy niezapisanych zmianach, tytul okna z nazwa pliku
+- **Cross-platform** - Windows (.exe, .msi) i Linux (.deb, .AppImage)
+- **CI/CD** - GitHub Actions automatycznie buduje release
 - **Lekki** - ~5-10 MB dzieki Tauri (natywny WebView)
 
 ## Wymagania
