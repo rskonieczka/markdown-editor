@@ -50,7 +50,7 @@ function ToolbarButton({ onClick, isActive, disabled, title, children }) {
 }
 
 function ToolbarSeparator() {
-  return <div className="w-px h-6 bg-gray-300 mx-1 self-center" />;
+  return <div className="self-center mx-1 w-px h-6 bg-gray-300" />;
 }
 
 function HeadingDropdown({ editor }) {
@@ -85,7 +85,7 @@ function HeadingDropdown({ editor }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 px-2 py-1 rounded text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+        className="flex gap-1 items-center px-2 py-1 text-sm text-gray-600 rounded transition-colors hover:bg-gray-100 hover:text-gray-900"
       >
         <span className="min-w-[80px] text-left">
           {currentLevel ? currentLevel.label : "Paragraph"}
@@ -207,7 +207,7 @@ function TableDropdown({ editor }) {
           >
             <Trash2 size={14} /> Usun wiersz
           </button>
-          <div className="border-t border-gray-100 my-1" />
+          <div className="my-1 border-t border-gray-100" />
           <button
             type="button"
             onClick={() => {

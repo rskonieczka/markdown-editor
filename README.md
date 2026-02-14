@@ -1,4 +1,4 @@
-# Markdown Editor
+# Free Markdown Editor for Linux/Windows  
 
 A native, lightweight WYSIWYG Markdown editor built with Tauri 2 (Rust + React).
 
