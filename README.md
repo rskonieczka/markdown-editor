@@ -4,6 +4,30 @@ Natywny, lekki edytor WYSIWYG Markdown zbudowany na Tauri 2 (Rust + React).
 
 ![Markdown Editor](markdowneditor-view.png)
 
+## Opis
+
+Markdown Editor to desktopowa aplikacja do edycji plikow Markdown w trybie WYSIWYG. Program wyswietla sformatowany dokument w czasie rzeczywistym, bez koniecznosci przelaczania miedzy kodem zrodlowym a podgladem.
+
+### Edycja dokumentow
+
+Aplikacja uzywa edytora TipTap (opartego na ProseMirror), ktory renderuje tresc jako sformatowany tekst. Uzytkownik pracuje z dokumentem tak, jak w edytorze tekstu: zaznacza tekst, klika przyciski na pasku narzedzi lub uzywa skrotow klawiszowych. Wewnetrznie dokument jest przechowywany jako HTML i konwertowany do skladni Markdown przy zapisie (biblioteka turndown) oraz z Markdown do HTML przy otwarciu (biblioteka markdown-it).
+
+Obslugiwane elementy formatowania: naglowki H1-H6, pogrubienie, kursywa, przekreslenie, kod inline, bloki kodu, listy punktowane i numerowane, checklist (`- [ ]` / `- [x]`), cytaty, linki, tabele (z mozliwoscia zmiany rozmiaru kolumn) oraz linie poziome.
+
+### Obsluga plikow
+
+Pliki mozna otworzyc na cztery sposoby: przez natywny dialog systemowy (Ctrl+O), przeciagniecie pliku do okna aplikacji (drag & drop), podanie sciezki jako argument wiersza polecen (`markdown-editor dokument.md`) lub przez skojarzenie rozszerzen `.md`, `.markdown`, `.txt` z aplikacja w systemie operacyjnym.
+
+Zapis odbywa sie w formacie Markdown (.md). Dostepny jest rowniez eksport do HTML. Program monitoruje otwarty plik za pomoca natywnego mechanizmu systemu operacyjnego (inotify na Linuxie, ReadDirectoryChanges na Windowsie). Jesli inny program zmodyfikuje plik, edytor automatycznie wczyta nowa zawartosc.
+
+Pasek tytulu okna wyswietla nazwe pliku oraz gwiazdke (`*`) przy niezapisanych zmianach. Przy probie zamkniecia dokumentu z niezapisanymi zmianami program wyswietla ostrzezenie.
+
+### Interfejs
+
+Pasek narzedzi zawiera przyciski formatowania, menu naglowkow (dropdown), operacje na tabelach oraz przyciski cofania/ponawiania. Po prawej stronie znajduje sie selektor powiększenia (50-200%, zapamietywany miedzy sesjami) oraz nazwa biezacego pliku.
+
+Aplikacja korzysta z natywnego WebView systemu operacyjnego (WebKitGTK na Linuxie, WebView2 na Windowsie), dzieki czemu plik instalacyjny zajmuje ok. 5-10 MB.
+
 ## Pobieranie
 
 | System | Plik | Link |
