@@ -3,9 +3,11 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, Segoe UI, Inter, Helvetica Neue, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-smooth: always;
 }
 
 * {
@@ -28,6 +30,8 @@ html, body, #root {
   font-size: 1rem;
   line-height: 1.75;
   color: #1a1a1a;
+  text-rendering: optimizeLegibility;
+  font-smooth: always;
 }
 
 .tiptap p {

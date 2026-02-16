@@ -201,6 +201,10 @@ function AppContent({ initialCliData }) {
     const saved = localStorage.getItem("md-editor-zoom");
     return saved ? Number(saved) : 100;
   });
+  const [fontFamily, setFontFamily] = useState(() => {
+    const saved = localStorage.getItem("md-editor-font");
+    return saved || "system-ui";
+  });
   const savedContentRef = useRef(initialCliData ? initialCliData.content : "");
   const fileHandleRef = useRef(null);
   const dirtyTimerRef = useRef(null);
@@ -618,8 +622,10 @@ ${editor.getHTML()}
         currentFileName={currentFileName}
         zoom={zoom}
         onZoomChange={(v) => { setZoom(v); localStorage.setItem("md-editor-zoom", v); }}
+        fontFamily={fontFamily}
+        onFontChange={(font) => { setFontFamily(font); localStorage.setItem("md-editor-font", font); }}
       />
-      <Editor editor={editor} zoom={zoom} />
+      <Editor editor={editor} zoom={zoom} fontFamily={fontFamily} />
       {statusMessage && (
         <div
           className={`fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg text-sm font-medium transition-opacity z-50 ${

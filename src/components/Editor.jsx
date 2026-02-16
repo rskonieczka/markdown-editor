@@ -61,7 +61,7 @@ export function useMarkdownEditor({ onUpdate, initialContent }) {
   return editor;
 }
 
-export default function Editor({ editor, zoom = 100 }) {
+export default function Editor({ editor, zoom = 100, fontFamily = "system-ui" }) {
   const scale = zoom / 100;
   return (
     <div className="flex-1 overflow-y-auto bg-white">
@@ -71,6 +71,7 @@ export default function Editor({ editor, zoom = 100 }) {
           transform: `scale(${scale})`,
           transformOrigin: "top center",
           width: `${100 / scale}%`,
+          fontFamily: fontFamily,
         }}
       >
         {editor ? (
