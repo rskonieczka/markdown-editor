@@ -12,7 +12,7 @@ struct CliState(Mutex<Option<CliFileData>>);
 
 #[tauri::command]
 fn get_cli_file(state: tauri::State<CliState>) -> Option<CliFileData> {
-    state.0.lock().unwrap().take()
+    state.0.lock().unwrap().clone()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

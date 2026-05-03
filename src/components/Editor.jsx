@@ -53,12 +53,12 @@ export function useMarkdownEditor({ initialContent }) {
   return editor;
 }
 
-export default function Editor({ editor, zoom = 100, fontFamily = "system-ui" }) {
+export default function Editor({ editor, zoom = 100, fontFamily = "system-ui", onContextMenu }) {
   const scale = zoom / 100;
   return (
-    <div className="flex-1 overflow-y-auto bg-white">
+    <div className="flex-1 overflow-y-auto bg-[var(--color-canvas-inset)]" onContextMenu={onContextMenu}>
       <div
-        className="max-w-[1200px] mx-auto min-h-full"
+        className="max-w-[1200px] mx-auto min-h-full bg-[var(--color-canvas-default)] border-x border-[var(--color-border-subtle)]"
         style={{
           transform: `scale(${scale})`,
           transformOrigin: "top center",
@@ -70,10 +70,10 @@ export default function Editor({ editor, zoom = 100, fontFamily = "system-ui" })
           <EditorContent editor={editor} />
         ) : (
           <div className="p-8 space-y-4 animate-pulse">
-            <div className="h-8 bg-gray-100 rounded w-2/5" />
-            <div className="h-4 bg-gray-100 rounded w-full" />
-            <div className="h-4 bg-gray-100 rounded w-4/5" />
-            <div className="h-4 bg-gray-100 rounded w-3/5" />
+            <div className="h-8 rounded w-2/5 bg-[var(--color-neutral-muted)]" />
+            <div className="h-4 rounded w-full bg-[var(--color-neutral-muted)]" />
+            <div className="h-4 rounded w-4/5 bg-[var(--color-neutral-muted)]" />
+            <div className="h-4 rounded w-3/5 bg-[var(--color-neutral-muted)]" />
           </div>
         )}
       </div>

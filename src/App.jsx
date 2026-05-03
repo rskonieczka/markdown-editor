@@ -11,6 +11,41 @@ const md = new MarkdownIt({
 });
 md.use(markdownItTaskLists, { enabled: true });
 
+const ZOOM_STORAGE_KEY = "md-editor-zoom";
+const FONT_STORAGE_KEY = "md-editor-font";
+const THEME_STORAGE_KEY = "md-editor-theme";
+
+function getStoredTheme() {
+  if (typeof window === "undefined") {
+    return "system";
+  }
+
+  const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+  return saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+}
+
+function getResolvedTheme(theme) {
+  if (theme !== "system") {
+    return theme;
+  }
+
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return "light";
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const resolvedTheme = getResolvedTheme(theme);
+  document.documentElement.dataset.theme = resolvedTheme;
+  document.documentElement.style.colorScheme = resolvedTheme;
+}
+
 function markdownToHtml(markdown) {
   let html = md.render(markdown || "");
 
@@ -50,6 +85,29 @@ const tauriReady = (async function initTauri() {
 export default function App() {
   const [cliChecked, setCliChecked] = useState(false);
   const [cliData, setCliData] = useState(null);
+  const [theme, setTheme] = useState(getStoredTheme);
+
+  React.useLayoutEffect(() => {
+    const updateTheme = () => {
+      applyTheme(theme);
+    };
+
+    updateTheme();
+
+    if (theme !== "system" || typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateTheme);
+      return () => mediaQuery.removeEventListener("change", updateTheme);
+    }
+
+    mediaQuery.addListener(updateTheme);
+    return () => mediaQuery.removeListener(updateTheme);
+  }, [theme]);
 
   useEffect(() => {
     (async () => {
@@ -67,16 +125,25 @@ export default function App() {
 
   if (!cliChecked) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
-        <div className="text-gray-400 animate-pulse">Ladowanie...</div>
+      <div className="flex justify-center items-center h-screen bg-[var(--color-canvas-inset)]">
+        <div className="text-[var(--color-fg-muted)] animate-pulse">Ladowanie...</div>
       </div>
     );
   }
 
-  return <AppContent initialCliData={cliData} />;
+  return (
+    <AppContent
+      initialCliData={cliData}
+      theme={theme}
+      onThemeChange={(nextTheme) => {
+        setTheme(nextTheme);
+        window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      }}
+    />
+  );
 }
 
-function AppContent({ initialCliData }) {
+function AppContent({ initialCliData, theme, onThemeChange }) {
   const initialHtml = useMemo(
     () => (initialCliData ? markdownToHtml(initialCliData.content) : ""),
     [initialCliData],
@@ -84,14 +151,16 @@ function AppContent({ initialCliData }) {
 
   const currentFileName = initialCliData ? initialCliData.name : "";
   const currentFilePath = initialCliData ? initialCliData.path : "";
+  const contextMenuRef = useRef(null);
   const [zoom, setZoom] = useState(() => {
-    const saved = localStorage.getItem("md-editor-zoom");
+    const saved = localStorage.getItem(ZOOM_STORAGE_KEY);
     return saved ? Number(saved) : 100;
   });
   const [fontFamily, setFontFamily] = useState(() => {
-    const saved = localStorage.getItem("md-editor-font");
+    const saved = localStorage.getItem(FONT_STORAGE_KEY);
     return saved || "system-ui";
   });
+  const [contextMenuPosition, setContextMenuPosition] = useState(null);
   const currentContentRef = useRef(initialCliData ? initialCliData.content : "");
 
   const editor = useMarkdownEditor({
@@ -161,15 +230,87 @@ function AppContent({ initialCliData }) {
     };
   }, [currentFilePath, setEditorContent]);
 
+  useEffect(() => {
+    if (!contextMenuPosition) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      if (contextMenuRef.current?.contains(event.target)) {
+        return;
+      }
+
+      setContextMenuPosition(null);
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setContextMenuPosition(null);
+      }
+    };
+
+    const handleViewportChange = () => {
+      setContextMenuPosition(null);
+    };
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("scroll", handleViewportChange, true);
+
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("scroll", handleViewportChange, true);
+    };
+  }, [contextMenuPosition]);
+
+  React.useLayoutEffect(() => {
+    if (!contextMenuPosition || !contextMenuRef.current) {
+      return;
+    }
+
+    const viewportPadding = 8;
+    const rect = contextMenuRef.current.getBoundingClientRect();
+    const nextX = Math.max(viewportPadding, Math.min(contextMenuPosition.x, window.innerWidth - rect.width - viewportPadding));
+    const nextY = Math.max(viewportPadding, Math.min(contextMenuPosition.y, window.innerHeight - rect.height - viewportPadding));
+
+    if (nextX !== contextMenuPosition.x || nextY !== contextMenuPosition.y) {
+      setContextMenuPosition({ x: nextX, y: nextY });
+    }
+  }, [contextMenuPosition]);
+
+  const handleContextMenu = useCallback((event) => {
+    event.preventDefault();
+
+    const viewportPadding = 8;
+    setContextMenuPosition({
+      x: Math.max(viewportPadding, event.clientX),
+      y: Math.max(viewportPadding, event.clientY),
+    });
+  }, []);
+
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <Toolbar
+    <div className="flex flex-col h-screen bg-[var(--color-canvas-inset)] text-[var(--color-fg-default)]">
+      {contextMenuPosition ? (
+        <Toolbar
+          zoom={zoom}
+          onZoomChange={(v) => { setZoom(v); localStorage.setItem(ZOOM_STORAGE_KEY, v); }}
+          fontFamily={fontFamily}
+          onFontChange={(font) => { setFontFamily(font); localStorage.setItem(FONT_STORAGE_KEY, font); }}
+          theme={theme}
+          onThemeChange={onThemeChange}
+          position={contextMenuPosition}
+          containerRef={contextMenuRef}
+        />
+      ) : null}
+      <Editor
+        editor={editor}
         zoom={zoom}
-        onZoomChange={(v) => { setZoom(v); localStorage.setItem("md-editor-zoom", v); }}
         fontFamily={fontFamily}
-        onFontChange={(font) => { setFontFamily(font); localStorage.setItem("md-editor-font", font); }}
+        onContextMenu={handleContextMenu}
       />
-      <Editor editor={editor} zoom={zoom} fontFamily={fontFamily} />
     </div>
   );
 }
