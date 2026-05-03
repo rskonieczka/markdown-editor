@@ -1,16 +1,16 @@
-# Free Markdown Editor for Linux/Windows  
+# Markdown Viewer for Linux/Windows
 
-A native, lightweight WYSIWYG Markdown editor built with Tauri 2 (Rust + React).
+A native, lightweight Markdown viewer built with Tauri 2 (Rust + React).
 
-> **Latest update** - fixed existing bugs and added new ones.
+> Current mode: read-only viewer with zoom and font controls.
 
-![Markdown Editor](markdowneditor-view.png)
+![Markdown Viewer](markdowneditor-view.png)
 
 ## Table of Contents
 
 - [Description](#description)
-  - [Document Editing](#document-editing)
-  - [File Handling](#file-handling)
+  - [Document Rendering](#document-rendering)
+  - [File Input](#file-input)
   - [Interface](#interface)
 - [Download](#download)
 - [Features](#features)
@@ -21,25 +21,34 @@ A native, lightweight WYSIWYG Markdown editor built with Tauri 2 (Rust + React).
 
 ## Description
 
-Markdown Editor is a desktop application for editing Markdown files in WYSIWYG mode. The application renders a formatted document in real time, without switching between source code and preview.
+Markdown Viewer is a desktop application for displaying Markdown files as formatted documents. The current version is read-only: it renders content without editing, saving or export actions.
 
-### Document Editing
+### Document Rendering
 
-The application uses the TipTap editor (based on ProseMirror), which renders content as formatted text. The user works with the document as in a text editor: selects text, clicks toolbar buttons or uses keyboard shortcuts. Internally, the document is stored as HTML and converted to Markdown syntax on save (turndown library) and from Markdown to HTML on open (markdown-it library).
+The application converts Markdown to HTML with `markdown-it` and displays the result through TipTap/ProseMirror in read-only mode. This keeps the rendered document layout consistent while removing document editing from the UI.
 
-Supported formatting elements: headings H1-H6, bold, italic, strikethrough, inline code, code blocks, bullet and ordered lists, checklist (`- [ ]` / `- [x]`), blockquotes, links, tables (with resizable columns) and horizontal rules.
+Rendered content supports the elements configured in the viewer pipeline, including headings H1-H6, bold, italic, strikethrough, inline code, code blocks, bullet and ordered lists, checklist (`- [ ]` / `- [x]`), blockquotes, links and tables.
 
-### File Handling
+### File Input
 
-Files can be opened in four ways: via a native system dialog (Ctrl+O), by dragging a file into the application window (drag & drop), by passing a path as a command-line argument (`markdown-editor document.md`), or through file extension associations (`.md`, `.markdown`, `.txt`) registered with the operating system.
+The Tauri backend reads the first non-flag command-line argument and, if it points to an existing file, passes its absolute path, file name and content to the frontend. In practice this allows launching the packaged application with a file path, for example:
 
-Saving is done in Markdown format (.md). HTML export is also available. The application monitors the open file using the native OS file watching mechanism (inotify on Linux, ReadDirectoryChanges on Windows). If another program modifies the file, the editor automatically reloads the new content.
+```bash
+markdown-editor document.md
+```
 
-The window title bar displays the file name and an asterisk (`*`) for unsaved changes. When attempting to close a document with unsaved changes, the application shows a warning.
+The Tauri bundle also declares file associations for `.md`, `.markdown` and `.txt`, so opening those files from the operating system can route them into the viewer. When a file path is available, the application monitors it with the native file watching mechanism and reloads the document after external changes.
+
+If the application starts without a file, it opens an empty viewer window.
 
 ### Interface
 
-The toolbar contains formatting buttons, a heading dropdown menu, table operations and undo/redo buttons. On the right side there is a zoom selector (50-200%, persisted between sessions) and the current file name.
+The toolbar contains only two controls:
+
+- zoom selector in the range 50-200%
+- font family selector persisted in `localStorage`
+
+The document area is scrollable and rendered in read-only mode. When a file is loaded, the window title uses the current file name.
 
 The application uses the native OS WebView (WebKitGTK on Linux, WebView2 on Windows), resulting in an installer size of approximately 5-10 MB.
 
@@ -54,18 +63,14 @@ The application uses the native OS WebView (WebKitGTK on Linux, WebView2 on Wind
 
 ## Features
 
-- **WYSIWYG** - edit as in a document, no Markdown syntax knowledge required
-- **Toolbar** - headings H1-H6, Bold, Italic, Strike, Code, lists, blockquote, checklist, link, table, horizontal rule, undo/redo
-- **Checklist** - interactive task list `- [ ]` / `- [x]` with full Markdown round-trip
-- **File management** - New, Open, Save, Save As (.md), Export HTML
-- **File watcher** - automatic reload on external changes (native inotify/ReadDirectoryChanges)
-- **Drag & Drop** - drag .md/.markdown/.txt files into the editor
-- **CLI** - open files from the command line: `markdown-editor file.md`
-- **Zoom** - view scaling 50-200% (persisted in localStorage)
-- **Keyboard shortcuts** - Ctrl+N/O/S/Shift+S/B/I/K/Z
-- **Dirty flag** - unsaved changes warning, file name in window title
+- **Read-only Markdown rendering** - display formatted Markdown without edit mode
+- **CLI file input** - open a file by passing its path: `markdown-editor file.md`
+- **OS file associations** - packaged app declares `.md`, `.markdown` and `.txt`
+- **File watcher** - automatic reload on external changes when a file path is available
+- **Zoom** - view scaling 50-200% persisted in `localStorage`
+- **Font selector** - switch document font without modifying content
+- **Task lists and tables** - render structured Markdown content in the viewer surface
 - **Cross-platform** - Windows (.exe, .msi) and Linux (.deb, .AppImage)
-- **CI/CD** - GitHub Actions automatically builds releases
 - **Lightweight** - ~5-10 MB thanks to Tauri (native WebView)
 
 ## Requirements
@@ -78,30 +83,42 @@ The application uses the native OS WebView (WebKitGTK on Linux, WebView2 on Wind
 ## Running (dev)
 
 ```bash
-# Frontend only (browser)
 npm install
+
+# Frontend only (browser preview)
 npm run dev
 
 # Native Tauri application
-npm install
 cargo tauri dev
 ```
+
+Browser mode is useful for UI work, but native file input and file watching are only available in the Tauri application.
 
 ## Building
 
 ```bash
+npm install
 cargo tauri build
 
-# Artifacts:
-# Windows -> src-tauri/target/release/bundle/nsis/*.exe
-# Linux   -> src-tauri/target/release/bundle/appimage/*.AppImage
+# Typical output paths:
+# Native binary -> src-tauri/target/release/markdown-editor
+# Linux .deb    -> src-tauri/target/release/bundle/deb/*.deb
+# Linux .rpm    -> src-tauri/target/release/bundle/rpm/*.rpm
+# Linux AppImage -> src-tauri/target/release/bundle/appimage/*.AppImage
 ```
+
+Release artifact names and bundle metadata still use the legacy internal naming `Markdown Editor` / `markdown-editor`.
+
+On Linux, `.deb` and `.rpm` bundles may be produced even when the AppImage step fails later. If AppImage bundling stops at `linuxdeploy`, verify your AppImage tooling and Linux packaging dependencies before retrying the full bundle.
 
 ## Tech Stack
 
 - Tauri 2.x (Rust backend + native WebView)
 - React 18 + Vite
-- TipTap 2 (ProseMirror)
+- TipTap 2 (ProseMirror) used as a read-only document surface
 - TailwindCSS 3
-- Lucide React (icons)
-- turndown + markdown-it (MD <-> HTML conversion)
+- markdown-it + markdown-it-task-lists (Markdown to HTML rendering)
+
+## License
+
+MIT
